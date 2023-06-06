@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
 import Rating from '../components/Rating';
-import { useGetProductDetailsQuery } from '../slices/productSlice';
+import { useGetProductDetailsQuery } from '../slices/productApiSlice';
 
 const ProductScreen = () => {
   const { id: ProductId } = useParams();
