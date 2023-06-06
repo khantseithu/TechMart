@@ -1,9 +1,8 @@
-import { useParams, Link } from 'react-router-dom';
-import products from '../products';
-import { Row, Col, Image, ListGroup, Card, Button } from 'react-bootstrap';
+import { Button, Card, Col, Image, ListGroup, Row } from 'react-bootstrap';
+import { Link, useParams } from 'react-router-dom';
+import Loader from '../components/Loader';
+import Message from '../components/Message';
 import Rating from '../components/Rating';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useGetProductDetailsQuery } from '../slices/productSlice';
 
 const ProductScreen = () => {
@@ -33,9 +32,9 @@ const ProductScreen = () => {
         Go Back
       </Link>
       {isLoading ? (
-        <h2>Loading...</h2>
+        <Loader />
       ) : error ? (
-        <h3>{error}</h3>
+        <Message variant="danger">{error?.data.message || error.error}</Message>
       ) : (
         <>
           <Row>
