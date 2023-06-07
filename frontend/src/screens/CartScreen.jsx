@@ -19,6 +19,14 @@ const CartScreen = () => {
 
   const cart = useSelector((state) => state.cart);
   const { cartItems } = cart;
+
+  const addToCartHandler = (id, qty) => {
+    dispatch(addToCart({ id, qty }));
+  };
+
+  const removeFromCartHandler = (id) => {
+    dispatch(removeFromCart(id));
+  };
   return (
     <Row>
       <Col md={8}>
@@ -44,7 +52,7 @@ const CartScreen = () => {
                       as="select"
                       value={item.qty}
                       onChange={(e) =>
-                        dispatch(addToCart(item._id, Number(e.target.value)))
+                        addToCartHandler(item._id, Number(e.target.value))
                       }
                     >
                       {[...Array(item.countInStock).keys()].map((x) => (
@@ -62,7 +70,7 @@ const CartScreen = () => {
                     <Button
                       type="button"
                       variant="light"
-                      onClick={() => dispatch(removeFromCart(item._id))}
+                      onClick={() => removeFromCartHandler(item._id)}
                     >
                       <FaTrash />
                     </Button>
