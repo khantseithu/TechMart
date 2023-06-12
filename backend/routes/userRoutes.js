@@ -5,6 +5,7 @@ import {
   getUserById,
   getUserProfile,
   getUsers,
+  logoutUser,
   registerUser,
   updateUser,
   updateUserProfile,
@@ -14,7 +15,8 @@ import { admin, protect } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 router.route('/').post(registerUser).get(protect, admin, getUsers);
-router.route('/auth').post(authUser);
+router.post('/auth', authUser);
+router.post('/logout', logoutUser);
 router
   .route('/profile')
   .get(protect, getUserProfile)
