@@ -1,6 +1,6 @@
 import asyncHandler from '../middleware/asyncHandler.js';
 import User from '../models/UserModel.js';
-import jwt from 'jsonwebtoken';
+import generateToken from '../utils/generateToken.js';
 
 // @desc   Auth user & get token
 // @route  POST /api/users/auth
@@ -12,16 +12,8 @@ const authUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '30d',
-    });
+    generateToken(res, user._id);
 
-    res.cookie('jwt', token, {
-      httpOnly: true, // prevent cross-site scripting attack
-      secure: process.env.NODE_ENV === 'production', // https only
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      sameSite: 'strict', // csrf protection
-    });
     res.json({
       _id: user._id,
       name: user.name,
@@ -37,7 +29,27 @@ const authUser = asyncHandler(async (req, res) => {
 // @route  POST /api/users
 // @access Public
 const registerUser = asyncHandler(async (req, res) => {
-  res.send('register user');
+  const { name, email, password } = req.body;
+
+  const userExists = await User.findOne({ email }); // check if user already exists
+
+  if (userExists) {
+    res.status(400).json({ message: 'User already exists' });
+  }
+
+  const user = await User.create({ name, email, password }); // create new user
+
+  if (user) {
+    generateToken(res, user._id);
+
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+    });
+  } else {
+    res.status(400).json({ message: 'Invalid user data' });
+  }
 });
 
 // @desc   logout user & clear cookie
@@ -95,12 +107,12 @@ const updateUser = asyncHandler(async (req, res) => {
 
 export {
   authUser,
-  registerUser,
-  logoutUser,
-  getUserProfile,
-  updateUserProfile,
-  getUsers,
   deleteUser,
   getUserById,
+  getUserProfile,
+  getUsers,
+  logoutUser,
+  registerUser,
   updateUser,
+  updateUserProfile,
 };
