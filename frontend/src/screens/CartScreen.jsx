@@ -1,3 +1,5 @@
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Row,
   Col,
@@ -7,30 +9,25 @@ import {
   Button,
   Card,
 } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { addToCart, removeFromCart } from '../slices/cartSlice';
-import Message from '../components/Message';
 import { FaTrash } from 'react-icons/fa';
+import Message from '../components/Message';
+import { addToCart, removeFromCart } from '../slices/cartSlice';
 
 const CartScreen = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const cart = useSelector((state) => state.cart);
   const { cartItems } = cart;
 
-  const addToCartHandler = (id, qty) => {
-    dispatch(addToCart({ id, qty }));
+  const addToCartHandler = async (product, qty) => {
+    dispatch(addToCart({ ...product, qty }));
   };
 
   const removeFromCartHandler = (id) => {
     dispatch(removeFromCart(id));
   };
 
-  const checkOutHandler = () => {
-    navigate('/login?redirect=shipping');
-  };
   return (
     <Row>
       <Col md={8}>
@@ -43,7 +40,7 @@ const CartScreen = () => {
           <ListGroup variant="flush">
             {cartItems.map((item) => (
               <ListGroup.Item key={item._id}>
-                <Row style={{ alignItems: 'center' }}>
+                <Row>
                   <Col md={2}>
                     <Image src={item.image} alt={item.name} fluid rounded />
                   </Col>
@@ -56,15 +53,11 @@ const CartScreen = () => {
                       as="select"
                       value={item.qty}
                       onChange={(e) =>
-                        addToCartHandler(item._id, Number(e.target.value))
+                        addToCartHandler(item, Number(e.target.value))
                       }
                     >
                       {[...Array(item.countInStock).keys()].map((x) => (
-                        <option
-                          key={x + 1}
-                          value={x + 1}
-                          style={{ color: 'black' }}
-                        >
+                        <option key={x + 1} value={x + 1}>
                           {x + 1}
                         </option>
                       ))}
@@ -86,26 +79,23 @@ const CartScreen = () => {
         )}
       </Col>
       <Col md={4}>
-        <Card style={{ marginBottom: '20px' }}>
+        <Card>
           <ListGroup variant="flush">
             <ListGroup.Item>
-              <h2 style={{ textAlign: 'center' }}>
+              <h2>
                 Subtotal ({cartItems.reduce((acc, item) => acc + item.qty, 0)})
                 items
               </h2>
-              <h3 style={{ textAlign: 'center' }}>
-                $
-                {cartItems
-                  .reduce((acc, item) => acc + item.qty * item.price, 0)
-                  .toFixed(2)}
-              </h3>
+              $
+              {cartItems
+                .reduce((acc, item) => acc + item.qty * item.price, 0)
+                .toFixed(2)}
             </ListGroup.Item>
             <ListGroup.Item>
               <Button
                 type="button"
                 className="btn-block"
                 disabled={cartItems.length === 0}
-                onClick={checkOutHandler}
               >
                 Proceed To Checkout
               </Button>
@@ -116,4 +106,5 @@ const CartScreen = () => {
     </Row>
   );
 };
+
 export default CartScreen;
