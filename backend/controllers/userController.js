@@ -1,13 +1,12 @@
 import asyncHandler from '../middleware/asyncHandler.js';
-import User from '../models/UserModel.js';
 import generateToken from '../utils/generateToken.js';
+import User from '../models/UserModel.js';
 
-// @desc   Auth user & get token
-// @route  POST /api/users/auth
-// @access Public
+// @desc    Auth user & get token
+// @route   POST /api/users/auth
+// @access  Public
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  console.log(email, password);
 
   const user = await User.findOne({ email });
 
@@ -21,23 +20,29 @@ const authUser = asyncHandler(async (req, res) => {
       isAdmin: user.isAdmin,
     });
   } else {
-    res.status(401).json({ message: 'Invalid email or password' });
+    res.status(401);
+    throw new Error('Invalid email or password');
   }
 });
 
-// @desc   register a new user
-// @route  POST /api/users
-// @access Public
+// @desc    Register a new user
+// @route   POST /api/users
+// @access  Public
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
-  const userExists = await User.findOne({ email }); // check if user already exists
+  const userExists = await User.findOne({ email });
 
   if (userExists) {
-    res.status(400).json({ message: 'User already exists' });
+    res.status(400);
+    throw new Error('User already exists');
   }
 
-  const user = await User.create({ name, email, password }); // create new user
+  const user = await User.create({
+    name,
+    email,
+    password,
+  });
 
   if (user) {
     generateToken(res, user._id);
@@ -46,28 +51,30 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      isAdmin: user.isAdmin,
     });
   } else {
-    res.status(400).json({ message: 'Invalid user data' });
+    res.status(400);
+    throw new Error('Invalid user data');
   }
 });
 
-// @desc   logout user & clear cookie
-// @route  POST /api/users/logout
-// @access Public
-const logoutUser = asyncHandler(async (req, res) => {
+// @desc    Logout user / clear cookie
+// @route   POST /api/users/logout
+// @access  Public
+const logoutUser = asyncHandler((req, res) => {
   res.cookie('jwt', '', {
-    httpOnly: true, // prevent cross-site scripting attack
-    expires: new Date(0), // immediately expire cookie
+    httpOnly: true,
+    expires: new Date(0),
   });
-  res.status(200).json({ message: 'User successfully logged out' });
+  res.status(200).json({ message: 'Logged out successfully' });
 });
 
-// @desc   get user profile
-// @route  GET /api/users/profile
-// @access Private
+// @desc    Get user profile
+// @route   GET /api/users/profile
+// @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id); // req.user is set in authMiddleware.js
+  const user = await User.findById(req.user._id);
 
   if (user) {
     res.json({
@@ -77,27 +84,27 @@ const getUserProfile = asyncHandler(async (req, res) => {
       isAdmin: user.isAdmin,
     });
   } else {
-    res.status(404).json({ message: 'User not found' });
+    res.status(404);
+    throw new Error('User not found');
   }
 });
 
-// @desc   update user profile
-// @route  PUT /api/users/profile
-// @access Private
+// @desc    Update user profile
+// @route   PUT /api/users/profile
+// @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
-    // update user
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
 
-    // if password is being updated
     if (req.body.password) {
       user.password = req.body.password;
     }
 
-    const updatedUser = await user.save(); // save updated user
+    const updatedUser = await user.save();
+
     res.json({
       _id: updatedUser._id,
       name: updatedUser.name,
@@ -105,46 +112,84 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       isAdmin: updatedUser.isAdmin,
     });
   } else {
-    res.status(404).json({ message: 'User not found' });
+    res.status(404);
+    throw new Error('User not found');
   }
 });
 
-// @desc   get all users
-// @route  GET /api/users
-// @access Private/Admin
+// @desc    Get all users
+// @route   GET /api/users
+// @access  Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
-  res.send('get all users');
+  const users = await User.find({});
+  res.json(users);
 });
 
-// @desc   delete user
-// @route  DELETE /api/users/:id
-// @access Private/Admin
+// @desc    Delete user
+// @route   DELETE /api/users/:id
+// @access  Private/Admin
 const deleteUser = asyncHandler(async (req, res) => {
-  res.send('delete user');
+  const user = await User.findById(req.params.id);
+
+  if (user) {
+    if (user.isAdmin) {
+      res.status(400);
+      throw new Error('Can not delete admin user');
+    }
+    await User.deleteOne({ _id: user._id });
+    res.json({ message: 'User removed' });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
 });
 
-// @desc   get user by id
-// @route  GET /api/users/:id
-// @access Private/Admin
+// @desc    Get user by ID
+// @route   GET /api/users/:id
+// @access  Private/Admin
 const getUserById = asyncHandler(async (req, res) => {
-  res.send('get user by id');
-});
+  const user = await User.findById(req.params.id).select('-password');
 
-// @desc   update user
-// @route  PUT /api/users/:id
-// @access Private/Admin
+  if (user) {
+    res.json(user);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+// @desc    Update user
+// @route   PUT /api/users/:id
+// @access  Private/Admin
 const updateUser = asyncHandler(async (req, res) => {
-  res.send('update user');
+  const user = await User.findById(req.params.id);
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.isAdmin = Boolean(req.body.isAdmin);
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      isAdmin: updatedUser.isAdmin,
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
 });
 
 export {
   authUser,
+  registerUser,
+  logoutUser,
+  getUserProfile,
+  updateUserProfile,
+  getUsers,
   deleteUser,
   getUserById,
-  getUserProfile,
-  getUsers,
-  logoutUser,
-  registerUser,
   updateUser,
-  updateUserProfile,
 };
