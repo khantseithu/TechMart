@@ -23,7 +23,6 @@ const Header = () => {
   const navigate = useNavigate();
 
   const [logoutApiCall] = useLogoutMutation();
-  console.log(userInfo);
 
   const logoutHandler = async () => {
     try {
