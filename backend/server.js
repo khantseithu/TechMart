@@ -1,7 +1,7 @@
+import path from 'path';
+
 import express from 'express';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
-// import products from './data/products.js';
 import productRoutes from './routes/productRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
