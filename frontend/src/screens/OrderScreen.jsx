@@ -3,6 +3,7 @@ import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import {
+  useDelieverOrderMutation,
   useGetOrderDetailsQuery,
   useGetPayPalClientIdQuery,
   usePayOrderMutation,
@@ -23,6 +24,9 @@ const OrderScreen = () => {
   } = useGetOrderDetailsQuery(orderId);
 
   const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+
+  const [delieverOrder, { isLoading: loadingDeliver }] =
+    useDelieverOrderMutation();
 
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -90,6 +94,16 @@ const OrderScreen = () => {
         return orderID;
       });
   }
+
+  const markAsDeliveredHandler = async () => {
+    try {
+      await delieverOrder(orderId);
+      refetch();
+      toast.success('Order is delivered');
+    } catch (error) {
+      toast.error(error?.data?.message || error.error);
+    }
+  };
 
   return isLoading ? (
     <Loader />
@@ -215,13 +229,31 @@ const OrderScreen = () => {
                           createOrder={createOrder}
                           onApprove={onApprove}
                           onError={onError}
-                        >Paypal</PayPalButtons>
+                        >
+                          Paypal
+                        </PayPalButtons>
                       </div>
                     </div>
                   )}
                 </ListGroup.Item>
               )}
               {/* {MARK AS DELIVERED PLACEHOLDER} */}
+              {loadingDeliver && <Loader />}
+
+              {userInfo &&
+                userInfo.isAdmin &&
+                order.isPaid &&
+                !order.isDelivered && (
+                  <ListGroup.Item>
+                    <Button
+                      type="button"
+                      className="btn btn-block"
+                      onClick={markAsDeliveredHandler}
+                    >
+                      Mark As Delivered
+                    </Button>
+                  </ListGroup.Item>
+                )}
             </ListGroup>
           </Card>
         </Col>
