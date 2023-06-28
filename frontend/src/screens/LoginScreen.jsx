@@ -8,7 +8,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { useLoginMutation } from '../slices/userApiSlice';
 import { setCredentials } from '../slices/authSlice';
-import toast from 'react-toastify';
+import { toast } from 'react-toastify';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
