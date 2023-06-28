@@ -1,5 +1,6 @@
 import {
   useCreateProductMutation,
+  useDeleteProductMutation,
   useGetProductsQuery,
 } from '../slices/productApiSlice';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -15,9 +16,16 @@ export default function ProductListScreen() {
     createProduct,
     { isLoading: creatingProduct, error: createProductError },
   ] = useCreateProductMutation();
-
+  const [deleteProduct, { isLoading: deleting }] = useDeleteProductMutation();
   const deleteHandler = (id) => {
-    console.log('deleteHandler', id);
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        deleteProduct(id);
+        refetch();
+      } catch (error) {
+        toast.error(error?.data?.message || error.error);
+      }
+    }
   };
 
   const createProductHandler = async () => {
@@ -44,6 +52,7 @@ export default function ProductListScreen() {
       </Row>
 
       {creatingProduct && <Loader />}
+      {deleting && <Loader />}
 
       {isLoading ? (
         <Loader />
