@@ -1,13 +1,12 @@
 import express from 'express';
-const router = express.Router();
-import asyncHandler from '../middleware/asyncHandler.js';
-import Product from '../models/ProductModel.js';
 import {
-  getProducts,
-  getProductById,
   createProduct,
+  getProductById,
+  getProducts,
+  updateProduct,
 } from '../controllers/productController.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
+import { admin, protect } from '../middleware/authMiddleware.js';
+const router = express.Router();
 
 // @desc    Fetch all products
 // @route   GET /api/products
@@ -17,6 +16,6 @@ router.route('/').get(getProducts).post(protect, admin, createProduct);
 // @desc    Fetch single product
 // @route   GET /api/products/:id
 // @access  Public
-router.route('/:id').get(getProductById);
+router.route('/:id').get(getProductById).put(protect, admin, updateProduct);
 
 export default router;
