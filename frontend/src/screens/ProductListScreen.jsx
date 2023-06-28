@@ -1,4 +1,7 @@
-import { useGetProductsQuery } from '../slices/productApiSlice';
+import {
+  useCreateProductMutation,
+  useGetProductsQuery,
+} from '../slices/productApiSlice';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Table, Button, Row, Col } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
@@ -8,10 +11,25 @@ import Message from '../components/Message';
 export default function ProductListScreen() {
   const { data: products, isLoading, error, refetch } = useGetProductsQuery();
 
+  const [
+    createProduct,
+    { isLoading: creatingProduct, error: createProductError },
+  ] = useCreateProductMutation();
+
   const deleteHandler = (id) => {
     console.log('deleteHandler', id);
   };
-  
+
+  const createProductHandler = async () => {
+    if (window.confirm('Are you sure you want to create a new product?')) {
+      try {
+        await createProduct();
+        refetch();
+      } catch (err) {
+        toast.error(err?.data?.message || err.error);
+      }
+    }
+  };
   return (
     <>
       <Row className="align-items-center">
@@ -19,11 +37,13 @@ export default function ProductListScreen() {
           <h1>Products</h1>
         </Col>
         <Col className="text-end">
-          <Button className="btn-sm m-3">
+          <Button className="btn-sm m-3" onClick={createProductHandler}>
             <FaPlus /> Create Product
           </Button>
         </Col>
       </Row>
+
+      {creatingProduct && <Loader />}
 
       {isLoading ? (
         <Loader />
