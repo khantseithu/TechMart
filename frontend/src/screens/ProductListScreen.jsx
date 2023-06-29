@@ -8,6 +8,7 @@ import { Table, Button, Row, Col } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
+import { toast } from 'react-toastify';
 
 export default function ProductListScreen() {
   const { data: products, isLoading, error, refetch } = useGetProductsQuery();
