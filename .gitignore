@@ -6,6 +6,9 @@ node_modules
 /.pnp
 .pnp.js
 
+/frontend/build
+/uploads/*.jpg
+/uploads/*.png
 # testing
 /coverage
 
