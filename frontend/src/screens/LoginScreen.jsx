@@ -21,7 +21,7 @@ const LoginScreen = () => {
   const [login, { isLoading }] = useLoginMutation();
   const { userInfo } = useSelector((state) => state.auth);
 
-  const [error, setError] = useState('');
+  // const [error, setError] = useState('');
   const sp = new URLSearchParams(search);
   const redirect = sp.get('redirect') || '/';
 

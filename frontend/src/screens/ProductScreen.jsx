@@ -22,6 +22,7 @@ import {
 import { addToCart } from '../slices/cartSlice';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import Meta from '../components/Meta';
 
 const ProductScreen = () => {
   const { id: ProductId } = useParams();
@@ -75,6 +76,7 @@ const ProductScreen = () => {
         <Message variant="danger">{error?.data.message || error.error}</Message>
       ) : (
         <>
+          <Meta title={product.name} description={product.description} />
           <Row>
             <Col md={5}>
               <Image src={product.image} alt={product.name} fluid />

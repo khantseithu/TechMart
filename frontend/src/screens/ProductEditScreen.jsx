@@ -78,6 +78,7 @@ export default function ProductEditScreen() {
     try {
       const res = await uploadProduct(formData).unwrap();
       toast.success('Image uploaded successfully');
+      setImage(res.image);
     } catch (error) {
       toast.error(error?.data?.message || 'Something went wrong');
     }

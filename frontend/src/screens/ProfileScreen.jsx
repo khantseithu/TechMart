@@ -29,7 +29,7 @@ export default function ProfileScreen() {
     setEmail(userInfo.email);
   }, [userInfo.name, userInfo.email]);
 
-  const [update, { isLoading: loadingUpdate }] = useProfileMutation();
+  const [update, { isLoading: loadingUpdateProfile }] = useProfileMutation();
 
   const dispatch = useDispatch();
   async function submitHandler(e) {
@@ -97,6 +97,7 @@ export default function ProfileScreen() {
           <Button type="submit" variant="primary">
             Update
           </Button>
+          {loadingUpdateProfile && <Loader />}
         </Form>
       </Col>
       <Col md={9}>

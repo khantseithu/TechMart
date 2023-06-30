@@ -18,10 +18,8 @@ export default function ProductListScreen() {
     pageNumber,
   });
 
-  const [
-    createProduct,
-    { isLoading: creatingProduct, error: createProductError },
-  ] = useCreateProductMutation();
+  const [createProduct, { isLoading: creatingProduct }] =
+    useCreateProductMutation();
   const [deleteProduct, { isLoading: deleting }] = useDeleteProductMutation();
   const deleteHandler = (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {

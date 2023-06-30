@@ -7,6 +7,7 @@ import { useGetProductsQuery } from '../slices/productApiSlice';
 import { Link, useParams } from 'react-router-dom';
 import Paginate from '../components/Paginate';
 import ProductCarousel from '../components/ProductCarousel';
+import Meta from '../components/Meta';
 
 const HomeScreen = () => {
   const { keyword, pageNumber } = useParams();
@@ -14,9 +15,10 @@ const HomeScreen = () => {
     keyword,
     pageNumber,
   });
-  console.log(data);
+
   return (
     <>
+      <Meta />
       {!keyword ? (
         <ProductCarousel />
       ) : (

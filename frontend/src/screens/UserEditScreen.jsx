@@ -8,7 +8,6 @@ import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
 import {
   useGetUserDetailsQuery,
-  useUpdateUserMutation,
   useUpdateUserProfileMutation,
 } from '../slices/userApiSlice';
 
@@ -97,6 +96,7 @@ const UserEditScreen = () => {
             <Button type="submit" variant="primary">
               Update
             </Button>
+            {loadingUpdate && <Loader />}
           </Form>
         )}
       </FormContainer>
